@@ -11,7 +11,11 @@ public class Main {
 
     public static void main(String[] args) {
         clearScreen();
-        System.out.println(ANSI_GREEN + "I'm green" + ANSI_RESET);
+        Board board = new Board();
+        Player first = new Player(false);
+        Board moved = first.makeMove(board, 1, 1);
+        System.out.println(board.mask[1][1]);
+        System.out.println(moved.mask[1][1]);
     }
 
     public static void clearScreen() {
