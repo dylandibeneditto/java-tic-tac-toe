@@ -4,7 +4,7 @@ public class Player {
      * <p>false -> <b>X</b></p>
      * <p>true -> <b>O</b></p>
      */
-    public static Boolean turn;
+    public Boolean turn;
 
     public Player(Boolean playerTurn) {
         turn = playerTurn;
