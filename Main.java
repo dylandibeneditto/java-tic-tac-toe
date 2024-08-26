@@ -58,7 +58,7 @@ public class Main {
                 } else {
                     if (!playerSide) { // Player is X
                         printBoard(board, false);
-                        int[] moves = getUserMoves(scanner);
+                        int[] moves = getUserMoves(scanner, board);
                         board = player.makeMove(board, moves[0], moves[1]);
                         if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
                             break;
@@ -68,7 +68,7 @@ public class Main {
                         printBoard(board, true);
                         if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
                             break;
-                        int[] moves = getUserMoves(scanner);
+                        int[] moves = getUserMoves(scanner, board);
                         board = player.makeMove(board, moves[0], moves[1]);
                     }
                 }
@@ -155,10 +155,10 @@ public class Main {
         System.out.print("] " + ANSI_GRAY + (eval > 0 ? "+" : "") + eval + "\n" + ANSI_RESET);
     }
 
-    private static int[] getUserMoves(Scanner scanner) {
+    private static int[] getUserMoves(Scanner scanner, Board board) {
         int x = -1;
         int y = -1;
-
+    
         Boolean xSuccess = false;
         while (!xSuccess) {
             try {
@@ -169,11 +169,10 @@ public class Main {
                 }
                 xSuccess = true;
             } catch (Exception e) {
-                System.out.println(ANSI_RED + "Incorrect Input. Please enter a valid integer." + ANSI_RESET);
-                xSuccess = false;
+                System.out.println(ANSI_RED + "Incorrect Input. Please enter a valid integer between 1 and 3." + ANSI_RESET);
             }
         }
-
+    
         Boolean ySuccess = false;
         while (!ySuccess) {
             try {
@@ -184,12 +183,20 @@ public class Main {
                 }
                 ySuccess = true;
             } catch (Exception e) {
-                System.out.println(ANSI_RED + "Incorrect Input. Please enter a valid integer." + ANSI_RESET);
-                ySuccess = false;
+                System.out.println(ANSI_RED + "Incorrect Input. Please enter a valid integer between 1 and 3." + ANSI_RESET);
             }
         }
-
-        int[] result = { x - 1, y - 1 };
+    
+        int xIndex = x - 1;
+        int yIndex = y - 1;
+    
+        // Check if the selected cell is already occupied
+        if (board.mask[xIndex][yIndex]) {
+            System.out.println(ANSI_RED + "Cell is already occupied. Please choose another cell." + ANSI_RESET);
+            return getUserMoves(scanner, board); // Retry until valid input
+        }
+    
+        int[] result = { xIndex, yIndex };
         return result;
     }
 
