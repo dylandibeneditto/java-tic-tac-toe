@@ -109,16 +109,24 @@ public class Main {
 
     private static void printEval(int width, Board board, Boolean move) {
         Computer computer = new Computer(move);
-        int eval = computer.minimax(board, 10, true);
-        System.out.print("[");
+        int eval = computer.minimax(board, 10, move);
+    
+        // Define the range for the eval values, e.g., from -100 to 100
+        int minEval = -13;
+        int maxEval = 13;
+    
+        // Scale the eval to fit within the width
+        int scaledEval = (int) (((double)(eval - minEval) / (maxEval - minEval)) * (width - 2));
+    
+        System.out.print(" [");
         for (int i = 0; i < width - 2; i++) {
-            if (i < eval + 60 / width) {
+            if (i < scaledEval) {
                 System.out.print("@");
             } else {
                 System.out.print(" ");
             }
         }
-        System.out.print("]" + ANSI_GRAY + " (" + eval + " at depth 10)\n" + ANSI_RESET);
+        System.out.print("] " + ANSI_GRAY + (eval > 0 ? "+" : "") + eval + "\n" + ANSI_RESET);
     }
 
     private static int[] getUserMoves(Scanner scanner) {

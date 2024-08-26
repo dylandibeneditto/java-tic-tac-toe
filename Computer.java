@@ -8,21 +8,21 @@ public class Computer extends Player {
         int score = board.evaluate(turn);
     
         // If the computer has won the game
-        if (score == 1) {
+        if (score == -1) {
             return score - depth; // Subtract depth to prioritize quicker wins
         }
     
         // If the opponent has won the game
-        if (score == -1) {
+        if (score == 1) {
             return score + depth; // Add depth to prioritize delaying loss
         }
     
-        // If there are no moves left and no winner
+        // draw
         if (!board.isMovesLeft()) {
             return 0;
         }
     
-        // Maximizer's move (Computer)
+        // max move
         if (isMax) {
             int best = Integer.MIN_VALUE;
     
@@ -34,7 +34,6 @@ public class Computer extends Player {
                         board.mask[i][j] = true;
                         board.side[i][j] = turn;
     
-                        // Call minimax recursively and choose the maximum value
                         best = Math.max(best, minimax(board, depth + 1, false));
     
                         // Undo the move
@@ -46,7 +45,7 @@ public class Computer extends Player {
             return best;
         }
     
-        // Minimizer's move (Opponent)
+        // min move
         else {
             int best = Integer.MAX_VALUE;
     
@@ -58,7 +57,6 @@ public class Computer extends Player {
                         board.mask[i][j] = true;
                         board.side[i][j] = !turn;
     
-                        // Call minimax recursively and choose the minimum value
                         best = Math.min(best, minimax(board, depth + 1, true));
     
                         // Undo the move
