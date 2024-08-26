@@ -30,21 +30,35 @@ public class Main {
             clearScreen();
             Player player = new Player(playerSide);
             Computer computer = new Computer(!playerSide);
-            while (Math.abs(board.evaluate(false)) != 1) {
+            while (Math.abs(board.evaluate(false)) != 1 && board.isMovesLeft()) {
                 if (!playerSide) { // Player is X
                     printBoard(board, false);
                     int[] moves = getUserMoves(scanner);
                     board = player.makeMove(board, moves[0], moves[1]);
+                    if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
+                        break;
                     board = computer.makeMove(board, 0, 0);
                 } else { // Player is O
                     board = computer.makeMove(board, 0, 0);
                     printBoard(board, true);
+                    if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
+                        break;
                     int[] moves = getUserMoves(scanner);
                     board = player.makeMove(board, moves[0], moves[1]);
                 }
                 clearScreen();
             }
-            System.out.println("GAME OVER");
+
+            clearScreen();
+            printBoard(board, playerSide);
+            int result = board.evaluate(false);
+            if (result == -1) {
+                System.out.println(ANSI_RED + "O wins!");
+            } else if (result == 1) {
+                System.out.println(ANSI_BLUE + "X wins!");
+            } else {
+                System.out.println("It's a draw!");
+            }
         }
     }
 
@@ -90,9 +104,21 @@ public class Main {
             }
             System.out.println();
         }
+        printEval(12, board, move);
+    }
+
+    private static void printEval(int width, Board board, Boolean move) {
         Computer computer = new Computer(move);
-        System.out
-                .println((move == false ? "It is X's move. " : "It is O's move. ") + computer.minimax(board, 9, true));
+        int eval = computer.minimax(board, 10, true);
+        System.out.print("[");
+        for (int i = 0; i < width - 2; i++) {
+            if (i < eval + 60 / width) {
+                System.out.print("@");
+            } else {
+                System.out.print(" ");
+            }
+        }
+        System.out.print("]" + ANSI_GRAY + " (" + eval + " at depth 10)\n" + ANSI_RESET);
     }
 
     private static int[] getUserMoves(Scanner scanner) {
