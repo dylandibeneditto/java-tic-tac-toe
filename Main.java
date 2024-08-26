@@ -17,34 +17,60 @@ public class Main {
         clearScreen();
         Board board = new Board();
         try (Scanner scanner = new Scanner(System.in)) {
-            Boolean playerSide = null;
-            while (playerSide == null) {
-                System.out.print("Which side would you like to be on? (x/o): ");
-                String side = scanner.nextLine();
-                if (side.toLowerCase().contains("x")) {
-                    playerSide = false;
-                } else if (side.toLowerCase().contains("o")) {
-                    playerSide = true;
+            Boolean cpuOnly = null;
+            while (cpuOnly == null) {
+                System.out.print("CPU vs CPU? (y/n): ");
+                String choice = scanner.nextLine();
+                if (choice.toLowerCase().contains("y")) {
+                    cpuOnly = true;
+                } else if (choice.toLowerCase().contains("n")) {
+                    cpuOnly = false;
                 }
+            }
+            Boolean playerSide = null;
+            if (!cpuOnly) {
+                while (playerSide == null) {
+                    System.out.print("Which side would you like to be on? (x/o): ");
+                    String side = scanner.nextLine();
+                    if (side.toLowerCase().contains("x")) {
+                        playerSide = false;
+                    } else if (side.toLowerCase().contains("o")) {
+                        playerSide = true;
+                    }
+                }
+            } else {
+                playerSide = false;
             }
             clearScreen();
             Player player = new Player(playerSide);
-            Computer computer = new Computer(!playerSide);
+            Computer computerA = new Computer(false);
+            Computer computerB = new Computer(true);
             while (Math.abs(board.evaluate(false)) != 1 && board.isMovesLeft()) {
-                if (!playerSide) { // Player is X
+                if (cpuOnly) {
                     printBoard(board, false);
-                    int[] moves = getUserMoves(scanner);
-                    board = player.makeMove(board, moves[0], moves[1]);
+                    board = computerA.makeMove(board, 0, 0);
                     if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
                         break;
-                    board = computer.makeMove(board, 0, 0);
-                } else { // Player is O
-                    board = computer.makeMove(board, 0, 0);
                     printBoard(board, true);
+                    board = computerB.makeMove(board, 0, 0);
                     if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
                         break;
-                    int[] moves = getUserMoves(scanner);
-                    board = player.makeMove(board, moves[0], moves[1]);
+                } else {
+                    if (!playerSide) { // Player is X
+                        printBoard(board, false);
+                        int[] moves = getUserMoves(scanner);
+                        board = player.makeMove(board, moves[0], moves[1]);
+                        if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
+                            break;
+                        board = computerB.makeMove(board, 0, 0);
+                    } else { // Player is O
+                        board = computerA.makeMove(board, 0, 0);
+                        printBoard(board, true);
+                        if (Math.abs(board.evaluate(false)) == 1 || !board.isMovesLeft())
+                            break;
+                        int[] moves = getUserMoves(scanner);
+                        board = player.makeMove(board, moves[0], moves[1]);
+                    }
                 }
                 clearScreen();
             }
@@ -110,14 +136,14 @@ public class Main {
     private static void printEval(int width, Board board, Boolean move) {
         Computer computer = new Computer(move);
         int eval = computer.minimax(board, 10, move);
-    
+
         // Define the range for the eval values, e.g., from -100 to 100
         int minEval = -13;
         int maxEval = 13;
-    
+
         // Scale the eval to fit within the width
-        int scaledEval = (int) (((double)(eval - minEval) / (maxEval - minEval)) * (width - 2));
-    
+        int scaledEval = (int) (((double) (eval - minEval) / (maxEval - minEval)) * (width - 2));
+
         System.out.print(" [");
         for (int i = 0; i < width - 2; i++) {
             if (i < scaledEval) {
