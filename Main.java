@@ -33,34 +33,37 @@ public class Main {
             while (Math.abs(board.evaluate(false)) != 1) {
                 if (!playerSide) { // Player is X
                     printBoard(board, false);
-                    board = player.makeMove(board, 1, 1);
+                    int[] moves = getUserMoves(scanner);
+                    board = player.makeMove(board, moves[0], moves[1]);
                     board = computer.makeMove(board, 0, 0);
                 } else { // Player is O
                     board = computer.makeMove(board, 0, 0);
                     printBoard(board, true);
-                    board = player.makeMove(board, 1, 1);
+                    int[] moves = getUserMoves(scanner);
+                    board = player.makeMove(board, moves[0], moves[1]);
                 }
+                clearScreen();
             }
-
+            System.out.println("GAME OVER");
         }
     }
 
-    public static void printBoard(Board board, Boolean move) {
+    private static void printBoard(Board board, Boolean move) {
         for (int y = 0; y < 6; y++) {
             for (int x = 0; x < 12; x++) {
                 Boolean xBorder = x == 4 || x == 8;
                 Boolean yBorder = y == 2 || y == 4;
-    
-                double xIndexRaw = (x-2) / 4.0;
-                double yIndexRaw = (y - 1) / 2.0;  // Adjusted for correct alignment
-    
-                boolean isXValue = ((xIndexRaw + 1) % 1 == 0);  // Fixed operator precedence
-                boolean isYValue = ((yIndexRaw + 1) % 1 == 0);  // Fixed operator precedence
+
+                double xIndexRaw = (x - 2) / 4.0;
+                double yIndexRaw = (y - 1) / 2.0;
+
+                boolean isXValue = ((xIndexRaw + 1) % 1 == 0);
+                boolean isYValue = ((yIndexRaw + 1) % 1 == 0);
                 boolean isValue = isXValue && isYValue;
-    
+
                 int xIndex = (int) xIndexRaw;
                 int yIndex = (int) yIndexRaw;
-    
+
                 if (xBorder && yBorder) { // intersection
                     System.out.print(ANSI_GRAY + "+" + ANSI_RESET);
                 } else if (xBorder && !yBorder && y != 0) { // vertical line
@@ -71,7 +74,7 @@ public class Main {
                     System.out.print(ANSI_GRAY + (xIndex + 1));
                 } else if (isYValue && yIndex >= 0 && yIndex < 3 && x == 0) { // y-axis coordinates label
                     System.out.print(ANSI_GRAY + (yIndex + 1) + " ");
-                } else if (x==0) {
+                } else if (x == 0) {
                     System.out.print("  ");
                 } else if (isValue && xIndex >= 0 && xIndex < 3 && yIndex >= 0 && yIndex < 3) { // grid value
                     Boolean filled = board.mask[xIndex][yIndex];
@@ -87,10 +90,47 @@ public class Main {
             }
             System.out.println();
         }
-    
-        // Display which player's move is next
         Computer computer = new Computer(move);
-        System.out.println((move == false ? "It is X's move. " : "It is O's move. ") + computer.minimax(board, 9, true));
+        System.out
+                .println((move == false ? "It is X's move. " : "It is O's move. ") + computer.minimax(board, 9, true));
+    }
+
+    private static int[] getUserMoves(Scanner scanner) {
+        int x = -1;
+        int y = -1;
+
+        Boolean xSuccess = false;
+        while (!xSuccess) {
+            try {
+                System.out.print(ANSI_GRAY + "x: " + ANSI_RESET);
+                x = scanner.nextInt();
+                if (x < 1 || x > 3) {
+                    throw new Exception("Out of Range");
+                }
+                xSuccess = true;
+            } catch (Exception e) {
+                System.out.println(ANSI_RED + "Incorrect Input. Please enter a valid integer." + ANSI_RESET);
+                xSuccess = false;
+            }
+        }
+
+        Boolean ySuccess = false;
+        while (!ySuccess) {
+            try {
+                System.out.print(ANSI_GRAY + "y: " + ANSI_RESET);
+                y = scanner.nextInt();
+                if (y < 1 || y > 3) {
+                    throw new Exception("Out of Range");
+                }
+                ySuccess = true;
+            } catch (Exception e) {
+                System.out.println(ANSI_RED + "Incorrect Input. Please enter a valid integer." + ANSI_RESET);
+                ySuccess = false;
+            }
+        }
+
+        int[] result = { x - 1, y - 1 };
+        return result;
     }
 
     public static void clearScreen() {
